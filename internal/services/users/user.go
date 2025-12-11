@@ -6,14 +6,14 @@ import (
 )
 
 type Service struct {
-	repo repo.Repository
+	repo repo.UsersRepo
 }
 
-func (s *Service) CreateUser(userReq dto.CreateUserRequest) dto.User {
+func (s *Service) CreateUser(userReq dto.CreateUserRequest) (dto.User, error) {
 	return s.repo.Create(userReq)
 }
 
-func (s *Service) GetAllUsers() []dto.User {
+func (s *Service) GetAllUsers() ([]dto.User, error) {
 	return s.repo.GetAll()
 }
 

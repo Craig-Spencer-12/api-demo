@@ -28,30 +28,6 @@ func NewUserRoutes(handler *gin.RouterGroup, u users.Service, kw *kafka.Writer) 
 	h.POST("", r.CreateUser)
 }
 
-/* Old kafka test
-func (ur *UserRoutes) SendKafkaMessage(c *gin.Context, msg string) {
-	var req dto.UserEventRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	event := dto.UserEvent{
-		UserID: req.UserID,
-		Event:  msg,
-	}
-
-	data, _ := json.Marshal(event)
-
-	if err := kafkautil.Produce(ur.kw, data); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Kafka event sent"})
-}
-*/
-
 func (ur *UserRoutes) CreateUser(c *gin.Context) {
 	var userReq dto.CreateUserRequest
 	if err := c.ShouldBindJSON(&userReq); err != nil {
@@ -60,7 +36,11 @@ func (ur *UserRoutes) CreateUser(c *gin.Context) {
 	}
 
 	// CreateUser should return an error and that error should be handled
-	user := ur.u.CreateUser(userReq)
+	user, err := ur.u.CreateUser(userReq)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "placeholder error"})
+		return
+	}
 
 	data, _ := json.Marshal(gin.H{"message": "User Created", "user": user})
 	if err := kafkautil.Produce(ur.kw, data); err != nil {
@@ -72,7 +52,12 @@ func (ur *UserRoutes) CreateUser(c *gin.Context) {
 }
 
 func (ur *UserRoutes) GetAllUsers(c *gin.Context) {
-	messages := ur.u.GetAllUsers()
+	messages, err := ur.u.GetAllUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "placeholder error"})
+		return
+	}
+
 	c.JSON(http.StatusOK, messages)
 }
 

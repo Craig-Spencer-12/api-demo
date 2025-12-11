@@ -1,8 +1,6 @@
 package repo
 
 import (
-	"context"
-
 	"github.com/Craig-Spencer-12/api-demo/internal/entity/dto"
 	"github.com/Craig-Spencer-12/api-demo/pkg/db"
 )
@@ -25,7 +23,6 @@ func (r *UsersRepo) Create(userReq dto.CreateUserRequest) (dto.User, error) {
     `
 
 	err := r.Pool.QueryRow(
-		context.Background(),
 		query,
 		userReq.Username,
 		userReq.Email,
@@ -49,7 +46,7 @@ func (r *UsersRepo) GetAll() ([]dto.User, error) {
         FROM users
         ORDER BY id ASC;
     `
-	rows, err := r.Pool.Query(context.Background(), query)
+	rows, err := r.Pool.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +81,6 @@ func (r *UsersRepo) GetByID(id int) (dto.User, error) {
 	var u dto.User
 
 	err := r.Pool.QueryRow(
-		context.Background(),
 		query,
 		id,
 	).Scan(

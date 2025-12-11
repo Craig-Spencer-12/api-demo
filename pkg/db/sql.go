@@ -1,53 +1,35 @@
 package db
 
 import (
-	"context"
+	"database/sql"
 	"log"
-	"os"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type SQL struct {
-	Pool *pgxpool.Pool
+	Pool *sql.DB
 }
 
 func New(url string) (*SQL, error) {
 
-	pool, err := pgxpool.New(context.Background(), url)
+	db, err := sql.Open("postgres", url)
 	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
+		log.Fatalf("Error opening database :%v", err)
+	}
+	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
 	}
 
-	if err := pool.Ping(context.Background()); err != nil {
-		log.Fatalf("Database ping failed: %v", err)
+	database := &SQL{
+		Pool: db,
 	}
 
-	runMigrations()
-
-	db := &SQL{
-		Pool: pool,
-	}
-
-	return db, nil
+	return database, nil
 }
 
 func (p *SQL) Close() {
 	if p.Pool != nil {
 		p.Pool.Close()
 	}
-}
-
-func runMigrations(pool *pgxpool.Pool) {
-	sqlBytes, err := os.ReadFile("internal/schema.sql")
-	if err != nil {
-		log.Fatalf("Error reading schema.sql: %v", err)
-	}
-
-	_, err = pool.Exec(context.Background(), string(sqlBytes))
-	if err != nil {
-		log.Fatalf("Error running schema.sql: %v", err)
-	}
-
-	log.Println("Database tables ready ✔")
 }

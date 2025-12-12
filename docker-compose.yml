@@ -6,7 +6,6 @@ services:
     ports:
       - "2181:2181"
 
-  # TODO: Does this need a volume?
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     ports:
@@ -16,13 +15,38 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  db:
+  server:
+    build: 
+      context: .
+      dockerfile: ./cmd/server/Dockerfile
+    ports:
+     - "8080:8080"
+    environment:
+      DB_URL: ${DB_URL}
+    depends_on:
+     - postgres
+     - kafka
+
+  consumer:
+    build: 
+      context: .
+      dockerfile: ./cmd/consumer/Dockerfile
+    environment: 
+      PORT: "9092"
+      KAFKA_BROKER: "kafka"
+    ports:
+     - "9093:9093"
+    depends_on:
+      - kafka
+
+  postgres:
     image: postgres:16
-    container_name: my_postgres
+    container_name: postgres
     restart: always
     environment:
       POSTGRES_USER: myuser

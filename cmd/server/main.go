@@ -10,29 +10,24 @@ import (
 	"github.com/Craig-Spencer-12/api-demo/internal/kafkautil"
 	"github.com/Craig-Spencer-12/api-demo/internal/services"
 	"github.com/Craig-Spencer-12/api-demo/pkg/db"
-	"github.com/joho/godotenv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(fmt.Errorf("failed to load env: %w", err))
-	}
-
 	r := gin.Default()
-	writer := kafkautil.NewWriter("localhost:9092", "user-events")
+	writer := kafkautil.NewWriter("kafka:9092", "user-events")
 
-	dbURL := fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?%s",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASS"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
-		"sslmode=disable",
-	)
-	fmt.Println(dbURL)
+	dbURL := os.Getenv("DB_URL")
+	// dbURL := fmt.Sprintf(
+	// 	"postgres://%s:%s@%s:%s/%s?%s",
+	// 	os.Getenv("DB_USER"),
+	// 	os.Getenv("DB_PASS"),
+	// 	os.Getenv("DB_HOST"),
+	// 	os.Getenv("DB_PORT"),
+	// 	os.Getenv("DB_NAME"),
+	// 	"sslmode=disable",
+	// )
 	err := app.InitDB(dbURL)
 	if err != nil {
 		log.Fatal(fmt.Errorf("failed to migrate schema: %w", err))

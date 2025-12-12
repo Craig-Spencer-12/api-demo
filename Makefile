@@ -2,14 +2,10 @@ getUsers:
 	curl http://localhost:8080/users
 
 user:
+	@read -p "Enter name: " USERNAME; \
 	curl -X POST http://localhost:8080/users \
 	-H "Content-Type: application/json" \
-	-d '{"username":"craigspencer", "email":"test@gmail.com"}'
-
-user2:
-	curl -X POST http://localhost:8080/users \
-	-H "Content-Type: application/json" \
-	-d '{"username":"bob", "email":"bob@gmail.com"}'
+	-d '{"username":"'"$$USERNAME"'", "email":"'"$$USERNAME"'@gmail.com"}'
 
 consumer:
 	go run cmd/consumer/main.go
@@ -19,3 +15,8 @@ server:
 
 docker:
 	docker compose up -d
+
+
+peek_db: 
+	docker compose exec -it postgres psql -U myuser -d mydb
+# \dt - show all tables

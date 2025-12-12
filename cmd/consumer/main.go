@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/Craig-Spencer-12/api-demo/internal/kafkautil"
 )
 
 func main() {
 	reader := kafkautil.NewReader(
-		[]string{"localhost:9092"},
+		[]string{"kafka:9092"},
 		"user-events",
 		"user-events-consumer-group",
 	)
@@ -19,9 +20,10 @@ func main() {
 	for {
 		msg, err := reader.ReadMessage(context.Background())
 		if err != nil {
-			panic(err)
+			fmt.Printf("fetching message: %v, retrying in 1s...\n", err)
+			time.Sleep(time.Second)
+			continue
 		}
-
 		fmt.Printf("Received event: %s\n", msg.Value)
 	}
 }

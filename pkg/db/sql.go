@@ -11,21 +11,19 @@ type SQL struct {
 
 func New(url string) (*SQL, error) {
 
-	db, err := sql.Open("postgres", url)
+	db := &SQL{}
+	var err error
+
+	db.Pool, err = sql.Open("postgres", url)
 	if err != nil {
 		log.Fatalf("Error opening database :%v", err)
 	}
-	defer db.Close()
 
-	if err := db.Ping(); err != nil {
+	if err := db.Pool.Ping(); err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 
-	database := &SQL{
-		Pool: db,
-	}
-
-	return database, nil
+	return db, nil
 }
 
 func (p *SQL) Close() {

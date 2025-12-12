@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"log"
+
 	"github.com/Craig-Spencer-12/api-demo/internal/entity/dto"
 	"github.com/Craig-Spencer-12/api-demo/pkg/db"
 )
@@ -14,6 +16,11 @@ func NewUsersRepo(database *db.SQL) *UsersRepo {
 }
 
 func (r *UsersRepo) Create(userReq dto.CreateUserRequest) (dto.User, error) {
+
+	if err := r.Pool.Ping(); err != nil {
+		log.Fatal(err)
+	}
+
 	var user dto.User
 
 	query := `

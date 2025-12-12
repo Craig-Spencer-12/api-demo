@@ -9,9 +9,8 @@ type Services struct {
 	Users users.Service
 }
 
-// TODO: add db as a param
 func NewServices(db *db.SQL) *Services {
 	return &Services{
-		Users: users.Service{},
+		Users: users.NewService(db),
 	}
 }

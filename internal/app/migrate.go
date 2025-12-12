@@ -22,6 +22,7 @@ const (
 var content embed.FS
 
 func InitDB(url string) error {
+
 	db, err := sql.Open("postgres", url)
 	if err != nil {
 		return err

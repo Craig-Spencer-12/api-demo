@@ -35,7 +35,6 @@ func (ur *UserRoutes) CreateUser(c *gin.Context) {
 		return
 	}
 
-	// CreateUser should return an error and that error should be handled
 	user, err := ur.u.CreateUser(userReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "placeholder error"})

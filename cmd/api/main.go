@@ -1,20 +1,50 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/Craig-Spencer-12/api-demo/internal/app"
 	"github.com/Craig-Spencer-12/api-demo/internal/handlers"
 	"github.com/Craig-Spencer-12/api-demo/internal/kafkautil"
 	"github.com/Craig-Spencer-12/api-demo/internal/services"
+	"github.com/Craig-Spencer-12/api-demo/pkg/db"
+	"github.com/joho/godotenv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	r := gin.Default()
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(fmt.Errorf("failed to load env: %w", err))
+	}
 
+	r := gin.Default()
 	writer := kafkautil.NewWriter("localhost:9092", "user-events")
 
-	// TODO: database creation goes here, and is input into NewServices
-	service := services.NewServices()
+	dbURL := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?%s",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
+		"sslmode=disable",
+	)
+	fmt.Println(dbURL)
+	err := app.InitDB(dbURL)
+	if err != nil {
+		log.Fatal(fmt.Errorf("failed to migrate schema: %w", err))
+	}
+
+	database, err := db.New(dbURL)
+	if err != nil {
+		log.Fatal(fmt.Errorf("app - Run - db.New: %w", err))
+	}
+	defer database.Close()
+
+	service := services.NewServices(database)
 	handlers.InitHandler(r, *service, writer)
 
 	r.Run(":8080")

@@ -1,21 +1,30 @@
-# API-Demo
-This project is to demo a full implentaion of a Go api, connected to a PostgreSQL database, using Kafka for sending events.
+# Truck Management Simulation
+This project is a fleet data platform for trucking logistics. Vehicle telemetry is generated using the [Simulator for Urban MObility (SUMO)](https://eclipse.dev/sumo/) but could be seamlessly swapped out with real data from IoT devices.
+
+Data flows through an event-driven pipeline for ingestion, processing, storage, and alerting, enabling real-time visibility and historical analysis of fleet operations. The architecture is designed to scale from local simulation to real-world deployment while keeping components decoupled and extensible.
+
+## Architecture
+![Diagram.png](docs/assets/diagram.png)
 
 ## Usage
-Spin up services
 ```bash
-    docker compose up -d
-```
-Curl - This is how you interact with the api. You could swap this out with Postman
-```bash
-    make user bob
-    make getUsers
+docker compose up -d
 ```
 
+>NOTE:
+>Very much in progress so it won't work yet. Check out the early-demo branch for a working demo of some of the components
+
 ## TODO
-- Test multiple consumers
-- Deploy on AWS using Terraform
-- Make user flow diagram
-- Make architecture doc
-- Create more concrete use case (trucking logistics)
-- Create better way to interact with Kafka
+- Change core service app into simple ingestor
+- Update Business logic to work with SUMO data
+- Add Redis
+- (Future) Deploy on AWS using Terraform
+
+## Journey
+- Local demo api server
+- Docker compose with multiple services (Kafka, Postgres)
+- Dockerize main app
+- Adapt to trucking use case (SUMO, Redis, Real Services) <- In Progress
+
+## Dependencies
+SUMO - https://eclipse.dev/sumo/

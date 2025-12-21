@@ -8,16 +8,10 @@ import (
 	"net/http"
 	"os"
 
+	"common/dto"
+
 	"github.com/segmentio/kafka-go"
 )
-
-type Telemetry struct {
-	TruckID   string  `json:"truck_id"`
-	Lat       float64 `json:"lat"`
-	Long      float64 `json:"long"`
-	Speed     float64 `json:"speed"`
-	Timestamp float64 `json:"timestamp"`
-}
 
 func main() {
 
@@ -34,14 +28,14 @@ func main() {
 	defer writer.Close()
 
 	http.HandleFunc("/ingest", func(w http.ResponseWriter, r *http.Request) {
-		var t Telemetry
+		var t dto.Telemetry
 		if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		// TODO: Remove this
-		fmt.Printf("Ingested: Truck %s at %.2f m/s\n", t.TruckID, t.Speed)
+		// Debug
+		// fmt.Printf("Ingested: Truck %s at %.2f m/s\n", t.TruckID, t.Speed)
 
 		msg, _ := json.Marshal(t)
 		err := writer.WriteMessages(context.Background(),

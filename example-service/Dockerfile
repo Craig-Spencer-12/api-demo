@@ -7,8 +7,8 @@ COPY common/ /common/
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY ingestor/ ./
+COPY example-service/ ./
 
-RUN go build -o ingestor-app .
+RUN go build -o example-service-app ./cmd/main.go
 
-CMD ["./ingestor-app"]
+CMD ["./example-service-app"]

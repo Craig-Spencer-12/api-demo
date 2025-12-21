@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Craig-Spencer-12/api-demo/internal/kafkautil"
+	"common/kafkautil"
 )
 
 func main() {
 	reader := kafkautil.NewReader(
 		[]string{"kafka:9092"},
-		"user-events",
-		"user-events-consumer-group",
+		"truck-telemetry",
+		"truck-telemetry-group",
 	)
 
 	fmt.Println("Kafka consumer started...")

@@ -1,14 +1,5 @@
 services:
 
-  simulation:
-    build:
-      context: ./simulation
-      dockerfile: Dockerfile
-    environment:
-      - AM_I_IN_DOCKER=true
-      - INGESTOR_URL=http://ingestor:8080/ingest
-    # depends_on:
-    #   - ingestor
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     environment:
@@ -30,43 +21,64 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  server:
-    build: 
-      context: .
-      dockerfile: ./cmd/server/Dockerfile
+  ingestor:
+    build:
+      context: ./ingestor
+      dockerfile: Dockerfile
     ports:
-     - "8080:8080"
+      - "8080:8080"
     environment:
-      DB_URL: ${DB_URL}
-    depends_on:
-     - postgres
-     - kafka
-
-  consumer:
-    build: 
-      context: .
-      dockerfile: ./cmd/consumer/Dockerfile
-    environment: 
-      PORT: "9092"
-      KAFKA_BROKER: "kafka"
-    ports:
-     - "9093:9093"
+      - KAFKA_BROKER=kafka:9092
     depends_on:
       - kafka
 
-  postgres:
-    image: postgres:16
-    container_name: postgres
-    restart: always
+  simulation:
+    build:
+      context: ./simulation
+      dockerfile: Dockerfile
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydb
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - AM_I_IN_DOCKER=true
+      - INGESTOR_URL=http://ingestor:8080/ingest
+    depends_on:
+      - ingestor
 
-volumes:
-  postgres_data:
+#   server:
+#     build: 
+#       context: .
+#       dockerfile: ./cmd/server/Dockerfile
+#     ports:
+#      - "8080:8080"
+#     environment:
+#       DB_URL: ${DB_URL}
+#     depends_on:
+#      - postgres
+#      - kafka
+
+#   consumer:
+#     build: 
+#       context: .
+#       dockerfile: ./cmd/consumer/Dockerfile
+#     environment: 
+#       PORT: "9092"
+#       KAFKA_BROKER: "kafka"
+#     ports:
+#      - "9093:9093"
+#     depends_on:
+#       - kafka
+
+#   postgres:
+#     image: postgres:16
+#     container_name: postgres
+#     restart: always
+#     environment:
+#       POSTGRES_USER: myuser
+#       POSTGRES_PASSWORD: mypassword
+#       POSTGRES_DB: mydb
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+
+# volumes:
+#   postgres_data:
 

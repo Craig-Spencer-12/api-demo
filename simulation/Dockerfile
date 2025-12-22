@@ -1,9 +1,7 @@
 FROM ubuntu:latest
 
-# Prevent interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 1. Install prerequisites and add the official SUMO PPA
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     && add-apt-repository ppa:sumo/stable \
@@ -14,11 +12,11 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Set SUMO_HOME
+
 ENV SUMO_HOME=/usr/share/sumo
 WORKDIR /app
 
-# 3. Install Python dependencies
+# TODO: Should not need to install traci, should be in sumo/tools
 RUN pip3 install traci requests --break-system-packages
 
 COPY . .

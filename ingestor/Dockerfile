@@ -4,10 +4,10 @@ WORKDIR /app
 
 COPY common/ /common/
 
-COPY go.mod go.sum ./
-RUN go mod download
+# COPY go.mod go.sum ./
 
 COPY ingestor/ ./
+RUN go mod download
 
 RUN go build -o ingestor-app .
 

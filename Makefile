@@ -30,5 +30,10 @@ peek_db:
 .PHONY: peek_db
 # \dt - show all tables
 
+peek_redis: 
+	docker compose exec -it redis redis-cli
+.PHONY: peek_redis
+# \dt - show all tables
+
 %:
 	@:

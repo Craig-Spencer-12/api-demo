@@ -3,6 +3,8 @@ package internal
 import (
 	"common/dto"
 	"common/postgresutil"
+	"fmt"
+	"strconv"
 )
 
 type Repo struct {
@@ -14,79 +16,24 @@ func NewPostgresRepo(url string) (*Repo, error) {
 	return &Repo{SQL: db}, err
 }
 
-func (r *Repo) Create(truckData dto.Telemetry) error {
+func (r *Repo) AddAverageSpeed(truckData dto.Telemetry) error {
 
+	fmt.Println("Trying to enter truck data", truckData.TruckID, truckData.Speed)
 	query := `
-        INSERT INTO users (username, email)
+        INSERT INTO speeds (truck_id, speed)
         VALUES ($1, $2)
-        RETURNING id, username, email, created_at;
+        RETURNING id, truck_id, speed, created_at;
     `
 	_, err := r.Pool.Exec(
 		query,
 		truckData.TruckID,
-		truckData.TruckID,
+		strconv.FormatFloat(truckData.Speed, 'f', 2, 64),
 	)
 
 	if err != nil {
+		fmt.Println(err.Error())
 		return err
 	}
 
 	return nil
 }
-
-// func (r *UsersRepo) GetAll() ([]dto.User, error) {
-// 	query := `
-//         SELECT id, username, email, created_at
-//         FROM users
-//         ORDER BY id ASC;
-//     `
-// 	rows, err := r.Pool.Query(query)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-
-// 	users := []dto.User{}
-
-// 	for rows.Next() {
-// 		var u dto.User
-// 		err := rows.Scan(
-// 			&u.ID,
-// 			&u.Username,
-// 			&u.Email,
-// 			&u.CreatedAt,
-// 		)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-
-// 		users = append(users, u)
-// 	}
-
-// 	return users, nil
-// }
-
-// func (r *UsersRepo) GetByID(id int) (dto.User, error) {
-// 	query := `
-//         SELECT id, username, email, created_at
-//         FROM users
-//         WHERE id = $1;
-//     `
-// 	var u dto.User
-
-// 	err := r.Pool.QueryRow(
-// 		query,
-// 		id,
-// 	).Scan(
-// 		&u.ID,
-// 		&u.Username,
-// 		&u.Email,
-// 		&u.CreatedAt,
-// 	)
-
-// 	if err != nil {
-// 		return dto.User{}, err
-// 	}
-
-// 	return u, nil
-// }

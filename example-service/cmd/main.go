@@ -27,7 +27,43 @@ func main() {
 	}
 	defer database.Close()
 
+	redisURL := "redis:6379" // TODO: Change to env variable
+	redisDB := internal.NewRedisRepo(redisURL)
+	defer redisDB.Close()
+
 	fmt.Println("Kafka consumer started...")
+
+	ticker := time.NewTicker(20 * time.Second)
+	defer ticker.Stop()
+
+	go func() {
+		for range ticker.C {
+			truckIDs, err := redisDB.GetAllTruckIDs()
+			if err != nil {
+				fmt.Printf("failed to get truck IDs: %v\n", err)
+				continue
+			}
+
+			for _, truckID := range truckIDs {
+				speeds, err := redisDB.GetTruckSpeeds(truckID)
+				if err != nil {
+					fmt.Printf("failed to get speeds for %s: %v\n", truckID, err)
+					continue
+				}
+
+				if len(speeds) == 0 {
+					continue
+				}
+
+				avg := averageSpeed(speeds)
+				database.AddAverageSpeed(dto.Telemetry{
+					TruckID: truckID,
+					Speed:   avg,
+				})
+				redisDB.ClearTruckSpeeds(truckID)
+			}
+		}
+	}()
 
 	for {
 		msg, err := reader.ReadMessage(context.Background())
@@ -45,7 +81,23 @@ func main() {
 			continue // skip bad messages
 		}
 
-		database.Create(truckData)
-		fmt.Printf("Received event: %s\n", msg.Value)
+		err = redisDB.AddTruckSpeed(truckData)
+		if err != nil {
+			fmt.Printf("failed to add speed to redis: %v\n", err)
+		}
+
+		// database.AddAverageSpeed(truckData) // Replace this with posting the average every 20 seconds
+		// fmt.Printf("Received event: %s\n", msg.Value)
 	}
+}
+
+func averageSpeed(speeds []float64) float64 {
+	if len(speeds) == 0 {
+		return 0
+	}
+	sum := 0.0
+	for _, s := range speeds {
+		sum += s
+	}
+	return sum / float64(len(speeds))
 }

@@ -39,6 +39,7 @@ services:
     environment: 
       PORT: "9092"
       KAFKA_BROKER: "kafka"
+      DB_URL: ${DB_URL}
     ports:
      - "9093:9093"
     depends_on:
@@ -54,43 +55,30 @@ services:
     depends_on:
       - ingestor
 
-#   server:
-#     build: 
-#       context: .
-#       dockerfile: ./cmd/server/Dockerfile
-#     ports:
-#      - "8080:8080"
-#     environment:
-#       DB_URL: ${DB_URL}
-#     depends_on:
-#      - postgres
-#      - kafka
+  migrate:
+    build:
+      context: ./migration
+      dockerfile: Dockerfile
+    profiles: ["migrate"]
+    depends_on:
+      - postgres
+    environment:
+      DB_URL: ${DB_URL}
+    restart: "no"
 
-#   consumer:
-#     build: 
-#       context: .
-#       dockerfile: ./cmd/consumer/Dockerfile
-#     environment: 
-#       PORT: "9092"
-#       KAFKA_BROKER: "kafka"
-#     ports:
-#      - "9093:9093"
-#     depends_on:
-#       - kafka
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-#   postgres:
-#     image: postgres:16
-#     container_name: postgres
-#     restart: always
-#     environment:
-#       POSTGRES_USER: myuser
-#       POSTGRES_PASSWORD: mypassword
-#       POSTGRES_DB: mydb
-#     ports:
-#       - "5432:5432"
-#     volumes:
-#       - postgres_data:/var/lib/postgresql/data
-
-# volumes:
-#   postgres_data:
+volumes:
+  postgres_data:
 

@@ -49,6 +49,7 @@ services:
     build:
       context: ./simulation
       dockerfile: Dockerfile
+    profiles: ["sim"]
     environment:
       - AM_I_IN_DOCKER=true
       - INGESTOR_URL=http://ingestor:8080/ingest

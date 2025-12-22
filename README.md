@@ -7,24 +7,42 @@ Data flows through an event-driven pipeline for ingestion, processing, storage, 
 ![Diagram.png](docs/assets/diagram.png)
 
 ## Usage
+
+### Fully Containerized
+Simulation runs containerized in CLI mode. Good for performance but less visual.
+
+```bash
+docker compose --profile sim --profile migrate up -d
+```
+
+>NOTE: The `--profile migrate` is only necessary when running for the first 
+time as it sets up the postgres schemas.
+
+### Locally Run Simulator
+Simulation runs loccally next to Docker stack. This lets SUMO run in gui mode showing full visual interface.
+
+>NOTE: Install SUMO here - https://eclipse.dev/sumo/
+
 ```bash
 docker compose up -d
 ```
 
->NOTE:
->Very much in progress so it won't work yet. Check out the early-demo branch for a working demo of some of the components
+```bash
+python3 simulation/bridge.py
+```
 
 ## TODO
-- Change core service app into simple ingestor
-- Update Business logic to work with SUMO data
-- Add Redis
+- Create more services based on example-service
+- Crete querying service for user facing postgres interactions
+- Alerting system for certain events (ie. Exessive speeding)
+- Improve visuals of sim (Try different maps and vehicle amounts)
 - (Future) Deploy on AWS using Terraform
 
 ## Journey
 - Local demo api server
 - Docker compose with multiple services (Kafka, Postgres)
 - Dockerize main app
-- Adapt to trucking use case (SUMO, Redis, Real Services) <- In Progress
+- Adapt to trucking use case (SUMO, Redis, Real Services)
 
 ## Dependencies
 SUMO - https://eclipse.dev/sumo/

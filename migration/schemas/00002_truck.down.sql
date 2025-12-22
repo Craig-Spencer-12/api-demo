@@ -1,0 +1,1 @@
+ALTER TABLE truck RENAME TO users;

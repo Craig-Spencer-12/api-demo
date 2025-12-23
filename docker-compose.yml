@@ -40,6 +40,8 @@ services:
       PORT: "9092"
       KAFKA_BROKER: "kafka"
       DB_URL: ${DB_URL}
+      REDIS_URL: ${REDIS_URL}
+      KAFKA_URL : ${KAFKA_URL}
     ports:
      - "9093:9093"
     depends_on:

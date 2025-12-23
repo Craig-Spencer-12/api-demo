@@ -1,4 +1,4 @@
-package internal
+package databases
 
 import (
 	"common/dto"
@@ -7,16 +7,16 @@ import (
 	"strconv"
 )
 
-type Repo struct {
+type PostgresRepo struct {
 	*postgresutil.SQL
 }
 
-func NewPostgresRepo(url string) (*Repo, error) {
+func NewPostgresRepo(url string) (*PostgresRepo, error) {
 	db, err := postgresutil.New(url)
-	return &Repo{SQL: db}, err
+	return &PostgresRepo{SQL: db}, err
 }
 
-func (r *Repo) AddAverageSpeed(truckData dto.Telemetry) error {
+func (r *PostgresRepo) AddAverageSpeed(truckData dto.Telemetry) error {
 
 	fmt.Println("Trying to enter truck data", truckData.TruckID, truckData.Speed)
 	query := `

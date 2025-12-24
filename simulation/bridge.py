@@ -41,9 +41,6 @@ def run_bridge():
                 "timestamp": time.time()
             }
 
-            # Debug
-            # print(json.dumps(payload))
-
             try:
                 requests.post(ingestor_url, json=payload, timeout=0.1)
             except requests.exceptions.RequestException:

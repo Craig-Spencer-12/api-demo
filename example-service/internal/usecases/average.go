@@ -1,7 +1,6 @@
 package usecases
 
 import (
-	"common/dto"
 	"fmt"
 )
 
@@ -23,11 +22,11 @@ func (uc *Usecases) CalculateAverageTruckSpeeds() {
 			continue
 		}
 
-		avg := averageSpeed(speeds)
-		uc.PostgresDB.AddAverageSpeed(dto.Telemetry{
-			TruckID: truckID,
-			Speed:   avg,
-		})
+		// avg := averageSpeed(speeds)
+		// uc.PostgresDB.AddAverageSpeed(dto.Telemetry{
+		// 	TruckID: truckID,
+		// 	Speed:   avg,
+		// })
 		uc.RedisDB.ClearTruckSpeeds(truckID)
 	}
 }

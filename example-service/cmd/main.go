@@ -1,6 +1,7 @@
 package main
 
 import (
+	"common/consts"
 	"example-service/internal/app"
 	"example-service/internal/databases"
 	"example-service/internal/endpoints"
@@ -8,18 +9,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	"common/kafkautil"
 )
 
 func main() {
-	kafkaURL := os.Getenv("KAFKA_URL")
-	reader := kafkautil.NewReader(
-		[]string{kafkaURL},
-		"truck-telemetry",
-		"truck-telemetry-group",
-	)
-
 	dbURL := os.Getenv("DB_URL")
 	database, err := databases.NewPostgresRepo(dbURL)
 	if err != nil {
@@ -28,16 +20,22 @@ func main() {
 	defer database.Close()
 
 	redisURL := os.Getenv("REDIS_URL")
-	redisDB := databases.NewRedisRepo(redisURL)
+	redisDB := databases.NewRedisRepo(redisURL) // TODO: Create and handle an error
 	defer redisDB.Close()
 
 	usecases := usecases.NewUsecases(database, redisDB)
 
 	endpoints := endpoints.NewEndpoints(usecases)
 
+	kafkaURL := os.Getenv("KAFKA_URL")
+	for _, topic := range consts.Topics {
+		fmt.Println("Kafka consumer started...")
+		consumer := app.NewConsumer(kafkaURL, topic, usecases)
+		go consumer.Start()
+	}
+
 	fmt.Println("HTTP service started...")
 	go endpoints.Foo()
 
-	fmt.Println("Kafka consumer started...")
-	app.RunConsumer(reader, usecases)
+	select {} // blocks
 }
